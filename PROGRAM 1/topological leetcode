@@ -1,0 +1,94 @@
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+
+typedef struct {
+    int *data;
+    int front, rear;
+} Queue;
+
+void initQueue(Queue *q, int size) {
+    q->data = (int *)malloc(size * sizeof(int));
+    q->front = q->rear = 0;
+}
+
+void enqueue(Queue *q, int val) {
+    q->data[q->rear++] = val;
+}
+
+int dequeue(Queue *q) {
+    return q->data[q->front++];
+}
+
+bool isEmpty(Queue *q) {
+    return q->front == q->rear;
+}
+
+bool canFinish(int numCourses, int** prerequisites, int prerequisitesSize, int* prerequisitesColSize) {
+    
+
+    int **graph = (int **)malloc(numCourses * sizeof(int *));
+    int *graphSize = (int *)calloc(numCourses, sizeof(int));
+    int *indegree = (int *)calloc(numCourses, sizeof(int));
+
+ 
+    for (int i = 0; i < prerequisitesSize; i++) {
+        int course = prerequisites[i][0];
+        int prereq = prerequisites[i][1];
+        graphSize[prereq]++;
+    }
+
+
+    for (int i = 0; i < numCourses; i++) {
+        graph[i] = (int *)malloc(graphSize[i] * sizeof(int));
+        graphSize[i] = 0; 
+    }
+
+    for (int i = 0; i < prerequisitesSize; i++) {
+        int course = prerequisites[i][0];
+        int prereq = prerequisites[i][1];
+
+        graph[prereq][graphSize[prereq]++] = course;
+        indegree[course]++;
+    }
+
+
+    Queue q;
+    initQueue(&q, numCourses);
+
+    for (int i = 0; i < numCourses; i++) {
+        if (indegree[i] == 0) {
+            enqueue(&q, i);
+        }
+    }
+
+    int completed = 0;
+
+  
+    while (!isEmpty(&q)) {
+        int current = dequeue(&q);
+        completed++;
+
+        for (int i = 0; i < graphSize[current]; i++) {
+            int neighbor = graph[current][i];
+            indegree[neighbor]--;
+
+            if (indegree[neighbor] == 0) {
+                enqueue(&q, neighbor);
+            }
+        }
+    }
+
+    for (int i = 0; i < numCourses; i++) {
+        free(graph[i]);
+    }
+    free(graph);
+    free(graphSize);
+    free(indegree);
+    free(q.data);
+
+    return completed == numCourses;
+}
