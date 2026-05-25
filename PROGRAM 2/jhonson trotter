@@ -1,0 +1,102 @@
+#include <stdio.h>
+
+#define LEFT -1
+#define RIGHT 1
+
+int p[20], dir[20];
+
+
+void printPerm(int n)
+{
+    for(int i = 1; i <= n; i++)
+        printf("%d ", p[i]);
+    printf("\n");
+}
+
+
+int getMobile(int n)
+{
+    int k = 0;
+
+    for(int i = 1; i <= n; i++)
+    {
+        if(dir[p[i]] == LEFT && i > 1)
+        {
+            if(p[i] > p[i-1] && p[i] > k)
+                k = p[i];
+        }
+
+        if(dir[p[i]] == RIGHT && i < n)
+        {
+            if(p[i] > p[i+1] && p[i] > k)
+                k = p[i];
+        }
+    }
+
+    return k;
+}
+
+
+int findPosition(int n, int k)
+{
+    for(int i = 1; i <= n; i++)
+        if(p[i] == k)
+            return i;
+}
+
+
+void johnsonTrotter(int n)
+{
+    int k, pos;
+
+    for(int i = 1; i <= n; i++)
+    {
+        p[i] = i;
+        dir[i] = LEFT;
+    }
+
+    printPerm(n);
+
+    while(1)
+    {
+        k = getMobile(n);
+
+        if(k == 0)
+            return;
+
+        pos = findPosition(n, k);
+
+        if(dir[k] == LEFT)
+        {
+            int temp = p[pos];
+            p[pos] = p[pos-1];
+            p[pos-1] = temp;
+        }
+        else
+        {
+            int temp = p[pos];
+            p[pos] = p[pos+1];
+            p[pos+1] = temp;
+        }
+
+        for(int i = 1; i <= n; i++)
+        {
+            if(p[i] > k)
+                dir[p[i]] = -dir[p[i]];
+        }
+
+        printPerm(n);
+    }
+}
+
+int main()
+{
+    int n;
+
+    printf("Enter n: ");
+    scanf("%d", &n);
+
+    johnsonTrotter(n);
+
+    return 0;
+}
