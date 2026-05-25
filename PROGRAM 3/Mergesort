@@ -2,67 +2,81 @@
 #include <stdlib.h>
 #include <time.h>
 
-int a[100000], temp[100000];
 
-void merge(int low, int mid, int high)
+void merge(int arr[], int low, int mid, int high)
 {
-    int i = low, j = mid + 1, k = low;
+    int i = low, j = mid + 1, k = 0;
+    int temp[100000];
 
-    while(i <= mid && j <= high)
+    while (i <= mid && j <= high)
     {
-        if(a[i] <= a[j])
-            temp[k++] = a[i++];
+        if (arr[i] < arr[j])
+            temp[k++] = arr[i++];
         else
-            temp[k++] = a[j++];
+            temp[k++] = arr[j++];
     }
 
-    while(i <= mid)
-        temp[k++] = a[i++];
+    while (i <= mid)
+        temp[k++] = arr[i++];
 
-    while(j <= high)
-        temp[k++] = a[j++];
+    while (j <= high)
+        temp[k++] = arr[j++];
 
-    for(i = low; i <= high; i++)
-        a[i] = temp[i];
+    for (i = low, k = 0; i <= high; i++, k++)
+        arr[i] = temp[k];
 }
 
-void mergesort(int low, int high)
-{
-    int mid;
 
-    if(low < high)
+void mergeSort(int arr[], int low, int high)
+{
+    if (low < high)
     {
-        mid = (low + high) / 2;
-        mergesort(low, mid);
-        mergesort(mid + 1, high);
-        merge(low, mid, high);
+        int mid = (low + high) / 2;
+
+        mergeSort(arr, low, mid);
+        mergeSort(arr, mid + 1, high);
+
+        merge(arr, low, mid, high);
     }
 }
 
 int main()
 {
     int n, i;
+    int *arr;
     clock_t start, end;
-    double time_taken;
+    double cpu_time;
 
     printf("Enter number of elements: ");
     scanf("%d", &n);
 
-    srand(time(NULL));
+    arr = (int *)malloc(n * sizeof(int));
 
-    for(i = 0; i < n; i++)
-        a[i] = rand();
+
+    for (i = 0; i < n; i++)
+    {
+        arr[i] = rand() % 10000;
+    }
+
 
     start = clock();
 
-    mergesort(0, n - 1);
+    mergeSort(arr, 0, n - 1);
 
     end = clock();
 
-    time_taken = ((double)(end - start)) / CLOCKS_PER_SEC*(1000);
 
-    printf("\nNumber of elements = %d", n);
-    printf("\nTime taken = %f seconds\n", time_taken);
+    cpu_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    printf("Sorted elements are:\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("%d ", arr[i]);
+    }
+
+    printf("\n\nTime taken to sort %d elements = %f seconds\n", n, cpu_time);
+
+    free(arr);
 
     return 0;
 }
